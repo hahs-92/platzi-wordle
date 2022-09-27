@@ -1,5 +1,41 @@
-import { Observable, fromEvent } from "rxjs";
+import { fromEvent } from "rxjs";
 
+const onKeyDown$ = fromEvent(document, "keydown");
+let letterIndex = 0;
+let letterRowIndex = 0;
+const letterRows = document.getElementsByClassName("letter-row");
+
+const insertLetter = {
+  next: (event: KeyboardEvent) => {
+    const pressedKey = event.key.toUpperCase();
+
+    if (pressedKey.length === 1 && pressedKey.match(/[a-z]/i)) {
+      let letterBox =
+        Array.from(letterRows)[letterRowIndex].children[letterIndex];
+      letterBox.textContent = pressedKey;
+      letterBox.classList.add("filled-letter");
+      letterIndex++;
+    }
+  },
+};
+
+const deleteLetter = {
+  next: (event: KeyboardEvent) => {
+    if (event.key === "Backspace") {
+      letterIndex--;
+      let letterBox =
+        Array.from(letterRows)[letterRowIndex].children[letterIndex];
+
+      letterBox.textContent = "";
+      letterBox.classList.remove("filled-letter");
+    }
+  },
+};
+
+onKeyDown$.subscribe(insertLetter);
+onKeyDown$.subscribe(deleteLetter);
+
+/*
 //fromEvent => genera un observable
 const onKeyDown$ = fromEvent(document, "keydown");
 
@@ -12,7 +48,7 @@ const observerMouse = {
 
 //subscription
 onKeyDown$.subscribe(observerMouse);
-
+*/
 // __________crear un Observable _____________________
 /*
 const observableAlpha$ = new Observable((subscriber) => {
