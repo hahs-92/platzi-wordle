@@ -1,5 +1,20 @@
-import { Observable, Subscriber } from "rxjs";
+import { Observable, fromEvent } from "rxjs";
 
+//fromEvent => genera un observable
+const onKeyDown$ = fromEvent(document, "keydown");
+
+//observer mouse
+const observerMouse = {
+  next: (event: KeyboardEvent | any) => {
+    console.log("e: ", event.key);
+  },
+};
+
+//subscription
+onKeyDown$.subscribe(observerMouse);
+
+// __________crear un Observable _____________________
+/*
 const observableAlpha$ = new Observable((subscriber) => {
   subscriber.next(1);
 
@@ -26,3 +41,4 @@ const observer = {
 };
 
 observableAlpha$.subscribe(observer);
+*/
