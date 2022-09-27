@@ -1,39 +1,71 @@
-import { BehaviorSubject, fromEvent, Observable, Subject } from "rxjs";
+import { fromEvent, Observable, Subject } from "rxjs";
+import WORDS_LIST from "./wordsList.json";
 
-// const onKeyDown$ = fromEvent(document, "keydown");
-// let letterIndex = 0;
-// let letterRowIndex = 0;
-// const letterRows = document.getElementsByClassName("letter-row");
+const onKeyDown$ = fromEvent(document, "keydown");
+let letterIndex = 0;
+let letterRowIndex = 0;
+let userAnswer: string[] = [];
+const letterRows = document.getElementsByClassName("letter-row");
+const userWinOrLose$ = new Subject<void>();
 
-// const insertLetter = {
-//   next: (event: KeyboardEvent) => {
-//     const pressedKey = event.key.toUpperCase();
+//generar
+const getRandomWord = () =>
+  WORDS_LIST[Math.floor(Math.random() * WORDS_LIST.length)];
 
-//     if (pressedKey.length === 1 && pressedKey.match(/[a-z]/i)) {
-//       let letterBox =
-//         Array.from(letterRows)[letterRowIndex].children[letterIndex];
-//       letterBox.textContent = pressedKey;
-//       letterBox.classList.add("filled-letter");
-//       letterIndex++;
-//     }
-//   },
-// };
+let rightWord = getRandomWord();
+console.log(rightWord);
 
-// const deleteLetter = {
-//   next: (event: KeyboardEvent) => {
-//     if (event.key === "Backspace") {
-//       letterIndex--;
-//       let letterBox =
-//         Array.from(letterRows)[letterRowIndex].children[letterIndex];
+const insertLetter = {
+  next: (event: KeyboardEvent) => {
+    const pressedKey = event.key.toUpperCase();
 
-//       letterBox.textContent = "";
-//       letterBox.classList.remove("filled-letter");
-//     }
-//   },
-// };
+    if (pressedKey.length === 1 && pressedKey.match(/[a-z]/i)) {
+      let letterBox =
+        Array.from(letterRows)[letterRowIndex].children[letterIndex];
+      letterBox.textContent = pressedKey;
+      letterBox.classList.add("filled-letter");
+      userAnswer.push(pressedKey);
+      letterIndex++;
+    }
+  },
+};
 
-// onKeyDown$.subscribe(insertLetter);
-// onKeyDown$.subscribe(deleteLetter);
+const deleteLetter = {
+  next: (event: KeyboardEvent) => {
+    if (event.key === "Backspace") {
+      letterIndex--;
+      let letterBox =
+        Array.from(letterRows)[letterRowIndex].children[letterIndex];
+
+      letterBox.textContent = "";
+      letterBox.classList.remove("filled-letter");
+      userAnswer.pop();
+    }
+  },
+};
+
+const checkWord = {
+  next: (event: KeyboardEvent) => {
+    if (event.key === "Enter") {
+      if (userAnswer.join("") === rightWord) {
+        userWinOrLose$.next();
+      }
+    }
+  },
+};
+
+onKeyDown$.subscribe(insertLetter);
+onKeyDown$.subscribe(deleteLetter);
+onKeyDown$.subscribe(checkWord);
+userWinOrLose$.subscribe(() => {
+  let letterBox = Array.from(letterRows)[letterRowIndex];
+
+  for (let index = 0; index < 5; index++) {
+    letterBox.children[index].classList.add("letter-green");
+  }
+});
+
+/*
 
 const numbers$ = new Observable((subscriber) => {
   //en este caso cada observer recibe un  numero diferente
@@ -43,7 +75,7 @@ const numbers$ = new Observable((subscriber) => {
   subscriber.next(Math.round(Math.random() * 100));
 });
 //
-const otherSubject$ = new Subject();
+const otherSubject$ = new Subject<number>();
 
 const observer1 = {
   next: (number: number) => {
@@ -76,6 +108,7 @@ numbersRandom$.subscribe(observer2);
 
 //next debe ser llamado despues de que los observers esten subscritos
 numbersRandom$.next(Math.round(Math.random() * 100));
+*/
 
 /*
 //fromEvent => genera un observable
